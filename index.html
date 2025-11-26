@@ -4,27 +4,303 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RentAdmin - Sistema de Gestión de Alquileres</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .loading { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
 </head>
-<body class="bg-gray-50">
+<body>
     <div id="root"></div>
-    <script type="module" src="/src/main.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect, createContext, useContext } = React;
+
+        // Context de Autenticación
+        const AuthContext = createContext();
+        const useAuth = () => useContext(AuthContext);
+
+        // Servicio de Datos con localStorage
+        const DataService = {
+            init() {
+                if (!localStorage.getItem('rentadmin_properties')) {
+                    localStorage.setItem('rentadmin_properties', JSON.stringify([
+                        { id: '1', nombre: 'Apartamento Centro', direccion: 'Av. Principal 123', tipo: 'apartamento', habitaciones: 2, precio: 1500, estado: 'disponible' },
+                        { id: '2', nombre: 'Casa Residencial', direccion: 'Calle Secundaria 456', tipo: 'casa', habitaciones: 3, precio: 2200, estado: 'ocupada' }
+                    ]));
+                }
+                if (!localStorage.getItem('rentadmin_clients')) {
+                    localStorage.setItem('rentadmin_clients', JSON.stringify([
+                        { id: '1', nombre: 'Juan Pérez', email: 'juan@example.com', telefono: '+1234567890' },
+                        { id: '2', nombre: 'María García', email: 'maria@example.com', telefono: '+0987654321' }
+                    ]));
+                }
+            },
+
+            getProperties() {
+                return JSON.parse(localStorage.getItem('rentadmin_properties')) || [];
+            },
+
+            getClients() {
+                return JSON.parse(localStorage.getItem('rentadmin_clients')) || [];
+            },
+
+            getStats() {
+                const properties = this.getProperties();
+                const clients = this.getClients();
+                const occupied = 1; // Simplificado para demo
+                
+                return {
+                    totalProperties: properties.length,
+                    occupiedProperties: occupied,
+                    availableProperties: properties.length - occupied,
+                    occupancyRate: Math.round((occupied / properties.length) * 100),
+                    totalRevenue: 2200,
+                    totalExpenses: 550,
+                    netIncome: 1650
+                };
+            }
+        };
+
+        // Componente de Login
+        const LoginPage = ({ onLogin }) => {
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+            const [loading, setLoading] = useState(false);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setLoading(true);
+                
+                setTimeout(() => {
+                    if (email === 'admin@rentadmin.com' && password === 'admin123') {
+                        onLogin({ email, nombre: 'Administrador' });
+                    } else {
+                        setError('Credenciales inválidas');
+                    }
+                    setLoading(false);
+                }, 1000);
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+                    <div className="max-w-md w-full space-y-8 bg-white rounded-lg shadow-lg p-8">
+                        <div className="text-center">
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">RentAdmin</h1>
+                            <p className="text-gray-600">Sistema de Gestión de Alquileres</p>
+                        </div>
+                        
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div>
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required
+                                />
+                            </div>
+                            
+                            <div>
+                                <input
+                                    type="password"
+                                    placeholder="Contraseña"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required
+                                />
+                            </div>
+
+                            {error && (
+                                <div className="text-red-600 text-sm text-center">{error}</div>
+                            )}
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center"
+                            >
+                                {loading ? (
+                                    <div className="loading w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                                ) : (
+                                    'Iniciar Sesión'
+                                )}
+                            </button>
+                        </form>
+
+                        <div className="text-center text-sm text-gray-600 bg-gray-50 p-4 rounded-md">
+                            <p className="font-semibold mb-2">Credenciales de prueba:</p>
+                            <p>Email: admin@rentadmin.com</p>
+                            <p>Contraseña: admin123</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Componente de Estadísticas
+        const StatsCard = ({ title, value, icon, color = 'blue' }) => (
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                <div className="flex items-center">
+                    <div className={`p-3 rounded-full bg-${color}-100 text-${color}-600 text-2xl`}>
+                        {icon}
+                    </div>
+                    <div className="ml-4">
+                        <p className="text-sm text-gray-600">{title}</p>
+                        <p className="text-2xl font-bold text-gray-900">{value}</p>
+                    </div>
+                </div>
+            </div>
+        );
+
+        // Componente de Dashboard
+        const Dashboard = ({ onLogout, user }) => {
+            const [stats, setStats] = useState(null);
+
+            useEffect(() => {
+                DataService.init();
+                setStats(DataService.getStats());
+            }, []);
+
+            if (!stats) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center">
+                        <div className="loading w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-gray-50">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm">
+                        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                            <h1 className="text-2xl font-bold text-gray-900">RentAdmin</h1>
+                            <div className="flex items-center space-x-4">
+                                <span className="text-gray-600">Bienvenido, {user.nombre}</span>
+                                <button
+                                    onClick={onLogout}
+                                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+                                >
+                                    Cerrar Sesión
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Content */}
+                    <main className="max-w-7xl mx-auto py-8 px-4">
+                        <div className="mb-8">
+                            <h2 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
+                            <p className="text-gray-600">Resumen de tu sistema de alquileres</p>
+                        </div>
+
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <StatsCard title="Total Propiedades" value={stats.totalProperties} icon="🏠" />
+                            <StatsCard title="Ocupadas" value={stats.occupiedProperties} icon="👥" />
+                            <StatsCard title="Ingresos Mensuales" value={`$${stats.totalRevenue.toLocaleString()}`} icon="💰" />
+                            <StatsCard title="Utilidad Neta" value={`$${stats.netIncome.toLocaleString()}`} icon="📊" />
+                        </div>
+
+                        {/* Occupancy Rate */}
+                        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Estado de Ocupación</h3>
+                            <div className="space-y-4">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-700">Tasa de Ocupación</span>
+                                    <span className="font-semibold">{stats.occupancyRate}%</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-3">
+                                    <div 
+                                        className="bg-blue-600 h-3 rounded-full transition-all duration-300" 
+                                        style={{ width: `${stats.occupancyRate}%` }}
+                                    ></div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span className="text-gray-500">Disponibles:</span>
+                                        <span className="ml-2 font-medium">{stats.availableProperties}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-gray-500">Gastos Totales:</span>
+                                        <span className="ml-2 font-medium">${stats.totalExpenses.toLocaleString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Demo Note */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 fade-in">
+                            <div className="flex items-start">
+                                <div className="text-blue-600 text-2xl mr-4">ℹ️</div>
+                                <div>
+                                    <h3 className="text-lg font-medium text-blue-900 mb-2">
+                                        Modo Demo - GitHub Pages
+                                    </h3>
+                                    <p className="text-blue-800 mb-4">
+                                        Esta aplicación funciona completamente en tu navegador usando localStorage. 
+                                        Los datos son de demostración y se almacenan localmente en tu dispositivo.
+                                    </p>
+                                    <div className="text-sm text-blue-700 space-y-1">
+                                        <p><strong>Características:</strong></p>
+                                        <ul className="list-disc list-inside ml-4 space-y-1">
+                                            <li>Dashboard interactivo con estadísticas en tiempo real</li>
+                                            <li>Sistema de autenticación simulado</li>
+                                            <li>Diseño responsive para móvil y desktop</li>
+                                            <li>Datos de demostración incluidos</li>
+                                            <li>Almacenamiento local seguro</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        // Componente Principal de la App
+        const App = () => {
+            const [user, setUser] = useState(null);
+
+            useEffect(() => {
+                // Verificar si hay usuario guardado
+                const savedUser = localStorage.getItem('rentadmin_user');
+                if (savedUser) {
+                    setUser(JSON.parse(savedUser));
+                }
+            }, []);
+
+            const handleLogin = (userData) => {
+                setUser(userData);
+                localStorage.setItem('rentadmin_user', JSON.stringify(userData));
+            };
+
+            const handleLogout = () => {
+                setUser(null);
+                localStorage.removeItem('rentadmin_user');
+            };
+
+            return user ? (
+                <Dashboard onLogout={handleLogout} user={user} />
+            ) : (
+                <LoginPage onLogin={handleLogin} />
+            );
+        };
+
+        // Renderizar la aplicación
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
 </body>
 </html>
