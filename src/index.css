@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Inter font styles */
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+  
+  body {
+    @apply antialiased text-neutral-900 bg-neutral-50;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-100;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-400 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-600;
+  }
+  
+  /* Focus styles for accessibility */
+  *:focus {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  }
+  
+  /* Smooth transitions for interactive elements */
+  button, a, input, textarea, select {
+    @apply transition-all duration-200 ease-out;
+  }
+}
+
+/* Component layer */
+@layer components {
+  /* Primary button */
+  .btn-primary {
+    @apply bg-primary-500 text-white px-md py-[11px] rounded-md font-semibold shadow-md hover:bg-primary-700 hover:shadow-lg hover:-translate-y-[2px] active:scale-[0.98] transition-all duration-250;
+  }
+  
+  /* Secondary button */
+  .btn-secondary {
+    @apply bg-neutral-100 text-neutral-900 px-md py-[11px] rounded-md font-semibold border border-neutral-400 hover:bg-neutral-50 hover:shadow-md hover:-translate-y-[2px] active:scale-[0.98] transition-all duration-250;
+  }
+  
+  /* Danger button */
+  .btn-danger {
+    @apply bg-error text-white px-md py-[11px] rounded-md font-semibold shadow-md hover:bg-red-700 hover:shadow-lg hover:-translate-y-[2px] active:scale-[0.98] transition-all duration-250;
+  }
+  
+  /* Form inputs */
+  .input {
+    @apply w-full px-sm py-3 border border-neutral-400 rounded-md bg-white text-neutral-900 placeholder-neutral-600 focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+  }
+  
+  .input-error {
+    @apply border-error focus:ring-error;
+  }
+  
+  /* Card component */
+  .card {
+    @apply bg-neutral-100 p-lg rounded-md shadow-md hover:shadow-lg hover:-translate-y-[4px] transition-all duration-250;
+  }
+  
+  /* Badge components */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .badge-success {
+    @apply bg-green-100 text-green-800;
+  }
+  
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800;
+  }
+  
+  .badge-error {
+    @apply bg-red-100 text-red-800;
+  }
+  
+  .badge-info {
+    @apply bg-blue-100 text-blue-800;
+  }
+  
+  .badge-neutral {
+    @apply bg-gray-100 text-gray-800;
+  }
+  
+  /* Table styles */
+  .table {
+    @apply w-full border-collapse;
+  }
+  
+  .table th {
+    @apply px-sm py-3 text-left text-xs font-semibold text-neutral-600 bg-neutral-50 border-b border-neutral-400;
+  }
+  
+  .table td {
+    @apply px-sm py-4 text-sm text-neutral-900 border-b border-neutral-400;
+  }
+  
+  .table tr:hover {
+    @apply bg-neutral-50;
+  }
+  
+  /* Status indicators */
+  .status-dot {
+    @apply w-2 h-2 rounded-full inline-block mr-2;
+  }
+  
+  .status-success {
+    @apply bg-green-500;
+  }
+  
+  .status-warning {
+    @apply bg-yellow-500;
+  }
+  
+  .status-error {
+    @apply bg-red-500;
+  }
+  
+  .status-info {
+    @apply bg-blue-500;
+  }
+  
+  .status-neutral {
+    @apply bg-gray-500;
+  }
+}
+
+/* Utility layer */
+@layer utilities {
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  .animate-pulse-soft {
+    animation: pulseSoft 2s infinite;
+  }
+  
+  /* Hover lift effect */
+  .hover-lift {
+    @apply hover:-translate-y-[4px] hover:shadow-lg transition-all duration-250;
+  }
+  
+  /* Text truncation */
+  .truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Loading animations */
+@keyframes pulseSoft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+}
